@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AR en vivo - Ingeniería de Software</title>
+    <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/aframe-extras@7.2.0/dist/aframe-extras.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/aframe-ar.js"></script>
+    <style>
+      body { margin: 0; overflow: hidden; }
+      .hud { position: fixed; z-index: 1000; padding: 20px; color: white; font-family: sans-serif; pointer-events: none; }
+    </style>
+  </head>
+  <body>
+    <div class="hud">
+      <h1>AR en vivo</h1>
+      <p id="status">Apunta al marcador Hiro...</p>
+    </div>
+
+    <a-scene
+      embedded
+      renderer="antialias: true; alpha: true; colorManagement: true;"
+      vr-mode-ui="enabled: false"
+      arjs="trackingMethod: best; sourceType: webcam; debugUIEnabled: false;"
+    >
+      <a-assets>
+        <a-asset-item id="dragon" src="prueba.glb"></a-asset-item>
+      </a-assets>
+
+      <a-marker preset="hiro">
+        <a-entity
+          id="arModel"
+          gltf-model="#dragon"
+          scale="0.04 0.04 0.04"
+          animation-mixer="clip: *; loop: repeat;"
+        ></a-entity>
+      </a-marker>
+
+      <a-light type="ambient" intensity="0.7"></a-light>
+      <a-light type="directional" position="1 2 1" intensity="1.5"></a-light>
+
+      <a-entity camera></a-entity>
+    </a-scene>
+
+    <script>
+      // Este script solo es para feedback visual, no para cargar el modelo
+      const statusEl = document.getElementById('status');
+      const scene = document.querySelector('a-scene');
+
+      scene.addEventListener('loaded', () => {
+        statusEl.textContent = 'Estado: Escena cargada. Busca el marcador.';
+      });
+    </script>
+  </body>
+</html>

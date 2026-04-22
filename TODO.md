@@ -1,7 +1,13 @@
-# TODO: Fix AR Model Loading
+# TODO: Improve ar-live.html and index.html - ✅ COMPLETED
 
-## Plan Steps:
-- [ ] 1. Create TODO.md (tracking)
-- [x] 2. Edit ar-app/ar-live.html: Update DRAGON_MODEL_PATH and dynamically load gltf-model
-- [x] 3. Test reload page, verify Network 200 for model, AR with Hiro marker shows dragon
-- [x] 4. Complete task
+## Final Status
+1. ✅ Edit styles.css - Added AR HUD, stats, spinner, responsive styles
+2. ✅ Edit index.html - Hero landing, model info, AR buttons, enhanced UX
+3. ✅ Edit ar-live.html - Rich HUD w/ stats/FPS, controls, instructions, marker link, better scene/lighting
+4. ✅ Tested: Files updated, styles consistent, navigation works, AR enhanced
+5. ✅ Complete
+
+**Preview:** Open `index.html` to see improved landing. Click "Lanzar AR" for live AR viewer with stats/controls.
+
+ar-app/ duplicates unchanged (focus on root).
+

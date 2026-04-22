@@ -343,3 +343,121 @@ input:focus {
     max-width: none;
   }
 }
+
+/* AR HUD Styles */
+.ar-hud {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  right: 20px;
+  z-index: 1000;
+  pointer-events: none;
+  backdrop-filter: blur(20px);
+  background: rgba(13, 19, 35, 0.92);
+  border: 1px solid var(--panel-border);
+  border-radius: 24px;
+  box-shadow: var(--shadow);
+  padding: 20px;
+  font-family: inherit;
+}
+
+.ar-hud__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.ar-title {
+  margin: 0;
+  font-size: 1.5rem;
+  background: linear-gradient(135deg, var(--accent), var(--accent-3));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.ar-stats {
+  display: flex;
+  gap: 16px;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 60px;
+}
+
+.stat-value {
+  font-weight: 700;
+  font-size: 1.2rem;
+  color: var(--accent);
+}
+
+.ar-instructions {
+  background: rgba(0,0,0,0.3);
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 16px;
+  font-size: 0.95rem;
+  line-size: 1.5;
+  color: var(--text);
+}
+
+.ar-controls {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  pointer-events: auto;
+}
+
+.ar-hud .button {
+  padding: 10px 16px;
+  font-size: 0.9rem;
+  pointer-events: all;
+}
+
+.loading-spinner {
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  border: 3px solid rgba(255,255,255,0.2);
+  border-top: 3px solid var(--accent);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.marker-download {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--success);
+  font-size: 0.85rem;
+  text-decoration: none;
+}
+
+@media (max-width: 640px) {
+  .ar-hud {
+    top: 10px;
+    left: 10px;
+    right: 10px;
+    padding: 16px;
+    border-radius: 20px;
+  }
+  
+  .ar-controls {
+    flex-direction: column;
+  }
+  
+  .ar-hud .button {
+    width: 100%;
+  }
+}

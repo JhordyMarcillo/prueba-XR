@@ -6,52 +6,547 @@
     <title>Visualizador AR | Software Engineering</title>
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
     <style>
-        :root { --accent: #4f9cf9; --bg: #0b0e14; }
-        body { margin: 0; background-color: var(--bg); font-family: 'Inter', sans-serif; color: white; }
-        
-        .dashboard { padding: 20px; display: flex; flex-direction: column; align-items: center; max-width: 600px; margin: auto; }
-        
-        .viewer-container { width: 100%; height: 400px; border-radius: 20px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); background: #161b22; }
-        
-        .header { text-align: center; margin-bottom: 20px; }
-        .header h1 { margin: 0; font-size: 1.5rem; }
-        
-        .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; margin-top: 20px; }
-        
-        .btn { padding: 15px; border-radius: 12px; border: none; font-weight: 600; cursor: pointer; text-align: center; text-decoration: none; transition: 0.3s; }
-        .btn-primary { background: var(--accent); color: white; }
-        .btn-secondary { background: rgba(255,255,255,0.1); color: #ccc; border: 1px solid rgba(255,255,255,0.2); }
-        
-        .btn:hover { opacity: 0.8; transform: translateY(-2px); }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #F0F9FF;
+            --bg-secondary: #E0F2FE;
+            --surface: #FFFFFF;
+            --surface-soft: #F8FAFC;
+            --text-primary: #0F172A;
+            --text-secondary: #475569;
+            --text-muted: #64748B;
+            --accent-primary: #0284C7;
+            --accent-hover: #0369A1;
+            --accent-light: #BAE6FD;
+            --accent-soft: #E0F2FE;
+            --border-light: #CBD5E1;
+            --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.08);
+            --radius-lg: 24px;
+            --radius-md: 18px;
+            --radius-sm: 12px;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+            color: var(--text-primary);
+            line-height: 1.5;
+            min-height: 100vh;
+            padding: 2rem 1.5rem;
+        }
+
+        .page {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .hero {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 2rem;
+            margin-bottom: 3rem;
+            padding: 1rem 0;
+        }
+
+        .hero__content {
+            flex: 2;
+            min-width: 260px;
+        }
+
+        .hero__content h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #0369A1 0%, #0284C7 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            letter-spacing: -0.02em;
+            margin-bottom: 0.5rem;
+        }
+
+        .hero__text {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+
+        .hero__description {
+            color: var(--text-muted);
+            max-width: 600px;
+            margin-bottom: 1.25rem;
+            line-height: 1.6;
+        }
+
+        .hero__actions {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            margin-top: 0.5rem;
+        }
+
+        .chip {
+            background: var(--surface);
+            padding: 0.4rem 1rem;
+            border-radius: 100px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--accent-primary);
+            border: 1px solid var(--accent-light);
+            backdrop-filter: blur(2px);
+            transition: all 0.2s ease;
+        }
+
+        .chip:hover {
+            background: var(--accent-soft);
+            transform: translateY(-1px);
+        }
+
+        .hero__card {
+            flex: 1;
+            background: var(--surface);
+            backdrop-filter: blur(8px);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid rgba(2, 132, 199, 0.15);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .hero__card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--accent-light);
+        }
+
+        .hero__card h3 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--accent-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .hero__card p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+            align-items: start;
+        }
+
+        .panel {
+            background: var(--surface);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            overflow: hidden;
+            transition: all 0.25s ease;
+            border: 1px solid rgba(2, 132, 199, 0.1);
+        }
+
+        .panel:hover {
+            box-shadow: var(--shadow-md);
+        }
+
+        .panel__header {
+            padding: 1.5rem 1.8rem 0.5rem 1.8rem;
+            border-bottom: 2px solid var(--accent-soft);
+        }
+
+        .panel__header h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            letter-spacing: -0.01em;
+            display: inline-block;
+            background: linear-gradient(120deg, var(--accent-primary), #38BDF8);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+
+        .model-container {
+            padding: 1.8rem;
+        }
+
+        model-viewer {
+            width: 100%;
+            height: 500px;
+            border-radius: var(--radius-md);
+            background: var(--bg-primary);
+            box-shadow: inset 0 0 0 1px rgba(2, 132, 199, 0.1), var(--shadow-sm);
+        }
+
+        .loading-spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid var(--accent-light);
+            border-top: 4px solid var(--accent-primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .info-section {
+            padding: 1.2rem 1.8rem;
+            border-bottom: 1px solid var(--accent-soft);
+        }
+
+        .info-title {
+            font-weight: 600;
+            color: var(--accent-primary);
+            margin-bottom: 0.75rem;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .info-text {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.6;
+            margin-bottom: 0.5rem;
+        }
+
+        .info-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .info-list li {
+            padding: 0.5rem 0;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+            border-bottom: 1px dashed var(--accent-soft);
+        }
+
+        .info-list li:last-child {
+            border-bottom: none;
+        }
+
+        .info-list li::before {
+            content: "▹";
+            color: var(--accent-primary);
+            font-size: 0.8rem;
+            flex-shrink: 0;
+        }
+
+        .badge-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .badge {
+            background: var(--accent-soft);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--accent-primary);
+        }
+
+        .actions-row {
+            padding: 1.5rem 1.8rem 1.8rem 1.8rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.9rem 1.5rem;
+            border-radius: 60px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            text-decoration: none;
+            transition: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            cursor: pointer;
+            border: none;
+            text-align: center;
+        }
+
+        .button--primary {
+            background: var(--accent-primary);
+            color: white;
+            box-shadow: 0 2px 6px rgba(2, 132, 199, 0.2);
+        }
+
+        .button--primary:hover {
+            background: var(--accent-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(2, 132, 199, 0.25);
+        }
+
+        .button--ghost {
+            background: var(--surface);
+            color: var(--accent-primary);
+            border: 1.5px solid var(--accent-light);
+            backdrop-filter: blur(2px);
+        }
+
+        .button--ghost:hover {
+            background: var(--accent-soft);
+            border-color: var(--accent-primary);
+            transform: translateY(-2px);
+        }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-top: 1rem;
+            padding: 1rem 1.8rem 1.5rem 1.8rem;
+            border-top: 1px solid var(--accent-soft);
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent-primary);
+        }
+
+        .stat-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .model-info-footer {
+            background: var(--surface-soft);
+            padding: 1.2rem 1.8rem;
+            border-top: 1px solid var(--accent-soft);
+        }
+
+        .model-info-footer p {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            line-height: 1.5;
+        }
+
+        .model-info-footer strong {
+            color: var(--accent-primary);
+        }
+
+        @media (max-width: 900px) {
+            body {
+                padding: 1.5rem;
+            }
+            
+            .grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+            
+            .hero {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 1.5rem;
+            }
+            
+            .hero__content h1 {
+                font-size: 2.2rem;
+            }
+            
+            .hero__text {
+                font-size: 1rem;
+            }
+            
+            model-viewer {
+                height: 380px;
+            }
+        }
+
+        @media (max-width: 550px) {
+            .panel__header {
+                padding: 1.2rem 1.2rem 0.3rem 1.2rem;
+            }
+            
+            .actions-row, .model-container, .info-section, .stats-row, .model-info-footer {
+                padding-left: 1.2rem;
+                padding-right: 1.2rem;
+            }
+            
+            model-viewer {
+                height: 320px;
+            }
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        .button:focus-visible, .chip:focus-visible {
+            outline: 2px solid var(--accent-primary);
+            outline-offset: 2px;
+        }
     </style>
 </head>
 <body>
 
-    <main class="dashboard">
-        <header class="header">
-            <h1>Proyecto AR | Ingeniería de Software</h1>
-            <p style="color: #8b949e;">Mascota 3D interactiva</p>
-        </header>
-
-        <section class="viewer-container">
-            <model-viewer 
-                src="prueba.glb" 
-                ar 
-                ar-modes="webxr scene-viewer quick-look" 
-                camera-controls 
-                auto-rotate 
-                shadow-intensity="1">
-            </model-viewer>
+    <main class="page">
+        <section class="hero">
+            <div class="hero__content">
+                <h1>Visualizador AR</h1>
+                <p class="hero__text">Proyecto de Ingeniería de Software - Mascota 3D interactiva</p>
+                <p class="hero__description">
+                    Experiencia inmersiva de Realidad Aumentada para visualizar modelos tridimensionales en el entorno real del usuario. 
+                    Este proyecto demuestra la integración de tecnologías web modernas para crear experiencias interactivas accesibles desde cualquier dispositivo compatible.
+                </p>
+                <div class="hero__actions">
+                    <span class="chip">Model Viewer v4</span>
+                    <span class="chip">WebXR</span>
+                    <span class="chip">GLB nativo</span>
+                    <span class="chip">Interacción táctil</span>
+                    <span class="chip">Three.js</span>
+                </div>
+            </div>
+            <div class="hero__card">
+                <div>
+                    <h3>Modos de AR disponibles</h3>
+                    <p>Nativo WebXR o Marcador Hiro</p>
+                    <div class="badge-container" style="margin-top: 12px; justify-content: center;">
+                        <span class="badge">WebXR</span>
+                        <span class="badge">Quick Look</span>
+                        <span class="badge">Scene Viewer</span>
+                        <span class="badge">AR.js compatible</span>
+                    </div>
+                </div>
+            </div>
         </section>
 
-        <section class="controls">
-            <a href="#" class="btn btn-primary" onclick="alert('Usa el botón de AR que aparece sobre el modelo para ver en tu entorno')">
-                AR Nativo (Recomendado)
-            </a>
-            
-            <a href="ar-live.html" class="btn btn-secondary">
-                Modo Marcador (Hiro)
-            </a>
+        <section class="grid">
+            <article class="panel panel--viewer">
+                <div class="panel__header">
+                    <h2>Modelo 3D Interactivo</h2>
+                </div>
+                <div class="model-container">
+                    <model-viewer 
+                        src="prueba.glb" 
+                        ar 
+                        ar-modes="webxr scene-viewer quick-look" 
+                        camera-controls 
+                        auto-rotate 
+                        shadow-intensity="1"
+                        style="width: 100%; height: 500px; border-radius: 18px;"
+                    >
+                        <div slot="progress-bar" style="padding: 20px; display: grid; place-items: center;">
+                            <div class="loading-spinner"></div>
+                        </div>
+                    </model-viewer>
+                </div>
+            </article>
+
+            <article class="panel">
+                <div class="panel__header">
+                    <h2>Controles AR</h2>
+                </div>
+                
+                <div class="info-section">
+                    <div class="info-title">
+                        ¿Qué es la Realidad Aumentada (AR)?
+                    </div>
+                    <div class="info-text">
+                        La Realidad Aumentada es una tecnología que superpone elementos virtuales generados por computadora sobre el mundo real en tiempo real. A diferencia de la Realidad Virtual (VR) que crea un entorno completamente artificial, la AR complementa la percepción del mundo físico añadiendo información, objetos 3D o animaciones que interactúan con el entorno real del usuario.
+                    </div>
+                </div>
+
+                <div class="info-section">
+                    <div class="info-title">
+                        Modo Marcador Hiro
+                    </div>
+                    <div class="info-text">
+                        El modo Marcador Hiro utiliza un patrón de marcador fiducial (un cuadrado con bordes negros y un patrón interno) que la cámara reconoce para posicionar y orientar el modelo 3D en el espacio. Hiro es el marcador estándar de la librería AR.js y consiste en un patrón con forma de "H" estilizada. Al detectar este marcador impreso o mostrado en otra pantalla, el sistema superpone el modelo 3D exactamente sobre él, manteniendo su posición y rotación aunque la cámara se mueva.
+                    </div>
+                </div>
+
+                <div class="info-section">
+                    <div class="info-title">
+                        Herramientas y tecnologías utilizadas
+                    </div>
+                    <div class="info-text">
+                        Este proyecto integra un conjunto de tecnologías web modernas para la visualización 3D y realidad aumentada:
+                    </div>
+                    <ul class="info-list">
+                        <li>Model Viewer: Componente web desarrollado por Google que simplifica la integración de modelos 3D y AR en sitios web. Soporta múltiples formatos como GLB y GLTF.</li>
+                        <li>WebXR API: Estándar web que permite experiencias de realidad extendida (XR) directamente en el navegador, sin plugins adicionales.</li>
+                        <li>Three.js (base de Model Viewer): Biblioteca JavaScript de bajo nivel para gráficos 3D que utiliza WebGL como motor de renderizado.</li>
+                        <li>AR Quick Look: Tecnología nativa de iOS que permite visualizar modelos 3D en realidad aumentada en dispositivos Apple.</li>
+                        <li>Scene Viewer: Implementación de AR para dispositivos Android a través de Google Play Services for AR.</li>
+                        <li>GL Transmission Format (glTF/GLB): Formato estándar para la transmisión eficiente de modelos 3D en la web, optimizado para carga progresiva y renderizado en tiempo real.</li>
+                    </ul>
+                </div>
+
+                <div class="info-section">
+                    <div class="info-title">
+                        Controles interactivos disponibles
+                    </div>
+                    <ul class="info-list">
+                        <li>Rotación manual: Arrastre con un dedo (touch) o con el ratón (click y arrastre) para rotar el modelo 360 grados.</li>
+                        <li>Zoom: Pellizco con dos dedos (touch) o rueda del ratón para acercar o alejar la vista del modelo.</li>
+                        <li>Rotación automática: El modelo gira suavemente de forma autónoma cuando no hay interacción del usuario.</li>
+                        <li>Sombra dinámica: El modelo proyecta sombra en el suelo virtual, mejorando la percepción de profundidad.</li>
+                        <li>Modo AR: Botón específico (visible sobre el modelo en dispositivos compatibles) que activa la cámara y superpone el modelo en el entorno real.</li>
+                        <li>Control de iluminación: Iluminación ambiental y direccional ajustable automáticamente según el entorno.</li>
+                    </ul>
+                </div>
+
+                <div class="actions-row">
+                    <a href="#" class="button button--primary" onclick="alert('Instrucciones: En dispositivos compatibles (iOS 13+ o Android 8+ con Google Play Services for AR), aparecerá un botón con forma de cubo sobre el modelo 3D. Al presionarlo, se activará la cámara y podrás colocar la mascota 3D en tu entorno real. Permite el acceso a la cámara cuando el navegador lo solicite. Para el modo Marcador Hiro, necesitarás imprimir o mostrar el patrón Hiro en otra pantalla.')" style="width: 100%;">
+                        AR Nativo - WebXR (Recomendado)
+                    </a>
+                    <a href="ar-live.html" class="button button--ghost" style="width: 100%;">
+                        Modo Marcador Hiro - Basado en patrones
+                    </a>
+                </div>
+
+                <div class="stats-row">
+                    <div class="stat-item">
+                        <div class="stat-number">60fps</div>
+                        <div class="stat-label">Rendimiento óptimo</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">WebGL 2.0</div>
+                        <div class="stat-label">Motor gráfico</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">&lt; 5MB</div>
+                        <div class="stat-label">Peso del modelo</div>
+                    </div>
+                </div>
+
+                <div class="model-info-footer">
+                    <p><strong>Acerca del modelo 3D:</strong> El modelo visualizado en esta página corresponde a una mascota virtual diseñada específicamente para este proyecto de Ingeniería de Software. Fue modelado en formato GLB (GL Transmission Format Binary), que es un formato contenedor que incluye geometría, materiales, texturas y animaciones en un solo archivo optimizado para la web. Este formato permite una carga eficiente y renderizado en tiempo real con calidad visual profesional. El modelo incluye materiales PBR (Physically Based Rendering) que simulan propiedades realistas de luz y superficie, lo que mejora la integración visual tanto en el visor 3D estándar como en los entornos de Realidad Aumentada.</p>
+                </div>
+            </article>
         </section>
     </main>
 

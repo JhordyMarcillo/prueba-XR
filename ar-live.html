@@ -3,178 +3,53 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>AR en Vivo - Ingeniería de Software</title>
-    <link rel="stylesheet" href="styles.css" />
+    <title>AR en vivo - Ingeniería de Software</title>
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/aframe-extras@7.2.0/dist/aframe-extras.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@a0af6588/build/aframe/build/aframe-ar.js"></script>
-    <link rel="preload" href="prueba.glb" as="fetch" type="model/gltf-binary" crossorigin>
+    <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/aframe-ar.js"></script>
+    <style>
+      body { margin: 0; overflow: hidden; }
+      .hud { position: fixed; z-index: 1000; padding: 20px; color: white; font-family: sans-serif; pointer-events: none; }
+    </style>
   </head>
   <body>
-    <!-- Rich AR HUD -->
-    <div class="ar-hud" id="arHud">
-      <div class="ar-hud__top">
-        <h1 class="ar-title">🐉 AR Dragon</h1>
-        <div class="ar-stats">
-          <div class="stat-item">
-            <span class="stat-value" id="markersFound">0</span>
-            <span>Marcadores</span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-value" id="fps">60</span>
-            <span>FPS</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="ar-instructions" id="instructions">
-        <strong>📱 Instrucciones:</strong><br>
-        1. Imprime o muestra <a href="https://raw.githubusercontent.com/AR-js-org/AR.js/master/data/images/HIRO.jpg" target="_blank" class="marker-download">marcador Hiro</a><br>
-        2. Apunta cámara al marcador<br>
-        3. ¡El dragón aparecerá!
-      </div>
-
-      <div class="ar-controls">
-        <a href="index.html" class="button button--ghost">← Volver</a>
-        <button id="resetModel" class="button button--primary">Reset</button>
-        <label class="button button--ghost" style="cursor:pointer;">
-          Escala: <input type="range" id="scaleSlider" min="0.01" max="0.1" step="0.01" value="0.04" />
-        </label>
-      </div>
-
-      <div id="status" style="color: var(--accent); font-weight: 600; margin-top: 12px;">
-        Iniciando cámara...
-        <span class="loading-spinner" id="loadingSpinner"></span>
-      </div>
+    <div class="hud">
+      <h1>AR en vivo</h1>
+      <p id="status">Apunta al marcador Hiro...</p>
     </div>
 
     <a-scene
       embedded
-      renderer="antialias: true; alpha: true; colorManagement: true; physicallyCorrectLights: true;"
+      renderer="antialias: true; alpha: true; colorManagement: true;"
       vr-mode-ui="enabled: false"
-      arjs="trackingMethod: best; sourceType: webcam; debugUIEnabled: false; sourceUrl: undefined;"
-      background="color: #1a1f2e;"
+      arjs="trackingMethod: best; sourceType: webcam; debugUIEnabled: false;"
     >
       <a-assets>
-        <a-asset-item id="dragonModel" src="prueba.glb"></a-asset-item>
-        <!-- Env map for better lighting -->
-        <img id="envMap" src="https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/equirectangular/venice_sunset_1k.hdr">
+        <a-asset-item id="dragon" src="prueba.glb"></a-asset-item>
       </a-assets>
 
-      <!-- Hiro Marker -->
-      <a-marker id="hiroMarker" preset="hiro" type="box" color="yellow" material="opacity:0.0;">
-        <a-entity 
-          id="arDragon"
-          gltf-model="#dragonModel"
+      <a-marker preset="hiro">
+        <a-entity
+          id="arModel"
+          gltf-model="#dragon"
           scale="0.04 0.04 0.04"
-          position="0 0 0"
           animation-mixer="clip: *; loop: repeat;"
-          ar-scale="factor: 1"
-        >
-          <!-- Better lighting on model -->
-          <a-light type="ambient" intensity="0.6" light="color: #ffffff"></a-light>
-        </a-entity>
-        
-        <!-- Ground plane for reference -->
-        <a-plane position="0 0 0" rotation="-90 0 0" width="4" height="4" color="#444" material="opacity:0.3; transparent:true;"></a-plane>
+        ></a-entity>
       </a-marker>
 
-      <!-- Default lights -->
-      <a-light type="ambient" intensity="0.8" light="type: ambient; color: #404040"></a-light>
-      <a-light type="directional" position="-1 1 0" intensity="1.2" light="type: directional; castShadow: true"></a-light>
-      <a-light type="directional" position="1 1 1" intensity="0.8"></a-light>
+      <a-light type="ambient" intensity="0.7"></a-light>
+      <a-light type="directional" position="1 2 1" intensity="1.5"></a-light>
 
-      <a-entity camera look-controls></a-entity>
+      <a-entity camera></a-entity>
     </a-scene>
 
     <script>
-      // Enhanced AR Controller
-      let scene, camera, markersFound = 0, lastTime = 0, fps = 60;
+      // Este script solo es para feedback visual, no para cargar el modelo
       const statusEl = document.getElementById('status');
-      const loadingSpinner = document.getElementById('loadingSpinner');
-      const markersEl = document.getElementById('markersFound');
-      const fpsEl = document.getElementById('fps');
-      const scaleSlider = document.getElementById('scaleSlider');
-      const resetBtn = document.getElementById('resetModel');
-      const arDragon = document.getElementById('arDragon');
-      const hiroMarker = document.getElementById('hiroMarker');
+      const scene = document.querySelector('a-scene');
 
-      scene = document.querySelector('a-scene');
-      camera = document.querySelector('a-entity[camera]');
-
-      // Update status
-      function updateStatus(msg, showSpinner = false) {
-        statusEl.textContent = msg;
-        loadingSpinner.style.display = showSpinner ? 'inline-block' : 'none';
-      }
-
-      // Stats tracking
-      function updateStats() {
-        const now = performance.now();
-        if (now - lastTime >= 1000) {
-          fps = Math.round(1000 / (now - lastTime) * 60); // ~FPS
-          lastTime = now;
-          fpsEl.textContent = fps;
-        }
-        
-        const currentMarkers = hiroMarker.object3D.visible ? 1 : 0;
-        if (currentMarkers !== markersFound) {
-          markersFound = currentMarkers;
-          markersEl.textContent = markersFound;
-          updateStatus(markersFound ? '¡Marcador detectado! Dragón cargado.' : 'Buscando marcador Hiro...');
-        }
-      }
-
-      // Events
       scene.addEventListener('loaded', () => {
-        updateStatus('Cámara lista. Buscando marcador...', false);
-        scene.setAttribute('arjs', { debugUIEnabled: false });
-      });
-
-      scene.addEventListener('enter-vr', () => updateStatus('VR Activado'));
-
-      // Marker events
-      hiroMarker.addEventListener('markerFound', () => {
-        arDragon.object3D.visible = true;
-        updateStatus('¡Dragón en AR! Mueve para interactuar.', false);
-      });
-
-      hiroMarker.addEventListener('markerLost', () => {
-        updateStatus('Marcador perdido. Apunta de nuevo.', false);
-      });
-
-      // Scale control
-      scaleSlider.addEventListener('input', (e) => {
-        const scale = e.target.value;
-        if (arDragon) {
-          arDragon.setAttribute('scale', `${scale} ${scale} ${scale}`);
-        }
-      });
-
-      // Reset
-      resetBtn.addEventListener('click', () => {
-        scaleSlider.value = 0.04;
-        arDragon.setAttribute('scale', '0.04 0.04 0.04');
-        arDragon.object3D.rotation.set(0, 0, 0);
-      });
-
-      // RAF loop for stats
-      scene.addEventListener('renderstart', () => {
-        function loop() {
-          updateStats();
-          requestAnimationFrame(loop);
-        }
-        loop();
-      });
-
-      // Error handling
-      window.addEventListener('error', (e) => {
-        updateStatus('Error: ' + e.message + '. Verifica cámara y modelo.', false);
-      });
-
-      // Auto-hide instructions when marker found
-      hiroMarker.addEventListener('markerFound', () => {
-        document.getElementById('instructions').style.display = 'none';
+        statusEl.textContent = 'Estado: Escena cargada. Busca el marcador.';
       });
     </script>
   </body>
